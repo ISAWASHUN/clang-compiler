@@ -2,6 +2,7 @@ version: "3.7"
 services:
   app:
     build: .
+    platform: linux/amd64
     volumes:
       - "./:/home/user/data"
     tty: true
