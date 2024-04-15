@@ -8,6 +8,8 @@ assert() {
   ./tmp
   actual="$?"
 
+  assert 21 "5+20-4"
+
   if [ "$actual" = "$expected" ]; then
     echo "$input => $actual"
   else
