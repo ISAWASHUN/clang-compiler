@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -6,12 +7,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct Node Node;
+
 //
 // tokenize.c
 //
 
+// Token
 typedef enum {
-  TK_PUNCT, // Keywords or punctuators
+  TK_IDENT, // Identifiers
+  TK_PUNCT, // Punctuators
   TK_NUM,   // Numeric literals
   TK_EOF,   // End-of-file markers
 } TokenKind;
@@ -37,32 +42,53 @@ Token *tokenize(char *input);
 // parse.c
 //
 
+// Local variable
+typedef struct Obj Obj;
+struct Obj {
+  Obj *next;
+  char *name; // Variable name
+  int offset; // Offset from RBP
+};
+
+// Function
+typedef struct Function Function;
+struct Function {
+  Node *body;
+  Obj *locals;
+  int stack_size;
+};
+
+// AST node
 typedef enum {
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // /
-  ND_NEG, // unary -
-  ND_EQ,  // ==
-  ND_NE,  // !=
-  ND_LT,  // <
-  ND_LE,  // <=
-  ND_NUM, // Integer
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // /
+  ND_NEG,       // unary -
+  ND_EQ,        // ==
+  ND_NE,        // !=
+  ND_LT,        // <
+  ND_LE,        // <=
+  ND_ASSIGN,    // =
+  ND_EXPR_STMT, // Expression statement
+  ND_VAR,       // Variable
+  ND_NUM,       // Integer
 } NodeKind;
 
 // AST node type
-typedef struct Node Node;
 struct Node {
   NodeKind kind; // Node kind
+  Node *next;    // Next node
   Node *lhs;     // Left-hand side
   Node *rhs;     // Right-hand side
+  Obj *var;      // Used if kind == ND_VAR
   int val;       // Used if kind == ND_NUM
 };
 
-Node *parse(Token *tok);
+Function *parse(Token *tok);
 
 //
 // codegen.c
 //
 
-void codegen(Node *node);
+void codegen(Function *prog);
