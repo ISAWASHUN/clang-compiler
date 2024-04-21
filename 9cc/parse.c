@@ -191,6 +191,12 @@ static Node *unary(Token **rest, Token *tok) {
 
 // primary = "(" expr ")" | ident | num
 static Node *primary(Token **rest, Token *tok) {
+  if (equal(tok, "return")) {
+    Node *node = new_unary(ND_RETURN, expr(&tok, tok->next));
+    *rest = skip(tok, ";");
+    return node;
+  }
+  
   if (equal(tok, "(")) {
     Node *node = expr(&tok, tok->next);
     *rest = skip(tok, ")");
